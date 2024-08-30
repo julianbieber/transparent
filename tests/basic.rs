@@ -31,6 +31,31 @@ fn check_identical_output() {
 }
 
 #[test]
+fn check_identical_output_specific_id() {
+    let test_text = "Test-ĄЂइ₡⍓☉あ句︽％";
+
+    let mut cmd = if cfg!(unix) {
+        let mut c = Command::new("echo");
+        c.arg(test_text);
+        c
+    } else {
+        return;
+    };
+    cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+
+    let transparent_output = cmd
+        .spawn_transparent(&TransparentRunner::with_id(99))
+        .unwrap()
+        .wait_with_output()
+        .unwrap();
+    let opaque_output = cmd.spawn().unwrap().wait_with_output().unwrap();
+
+    assert_eq!(transparent_output.status, opaque_output.status);
+    assert_eq!(transparent_output.stdout, opaque_output.stdout);
+    assert_eq!(transparent_output.stderr, opaque_output.stderr);
+}
+
+#[test]
 fn check_identical_non_zero_exit_code() {
     let mut cmd = if cfg!(windows) {
         let mut c = Command::new("powershell.exe");

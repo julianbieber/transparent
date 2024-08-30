@@ -61,6 +61,14 @@ impl TransparentRunner {
         Self(platform::TransparentRunnerImpl::default())
     }
 
+    pub fn with_id(id: u32) -> Self {
+        if cfg!(unix) {
+            Self(platform::TransparentRunnerImpl { id: Some(id) })
+        } else {
+            todo!("not implemented for non unix")
+        }
+    }
+
     /// Spawns the given [`Command`] transparently:
     ///  - on windows it is spawned on a new virtual desktop
     ///  - on unix it is spawned in a virtual X server environment

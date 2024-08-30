@@ -5,18 +5,32 @@ use std::{
 
 /// Unix-specific state required to run processes transparently.
 #[derive(Clone, Debug, Default)]
-pub struct TransparentRunnerImpl;
+pub struct TransparentRunnerImpl {
+    pub id: Option<u32>,
+}
 
 impl TransparentRunnerImpl {
     pub fn spawn_transparent(&self, command: &Command) -> io::Result<Child> {
         let mut runner_command = Command::new("xvfb-run");
-        runner_command
-            .arg("--auto-servernum")
-            .arg(command.get_program())
-            .args(command.get_args())
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+        if let Some(id) = self.id {
+            runner_command
+                .arg("--server-num")
+                .arg(format!("{id}"))
+                .arg(command.get_program())
+                .args(command.get_args())
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+        } else {
+            runner_command
+                .arg("--auto-servernum")
+                .arg(command.get_program())
+                .args(command.get_args())
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+        }
+        let id = self.id;
 
         for env in command.get_envs() {
             match env {
