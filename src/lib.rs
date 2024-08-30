@@ -33,6 +33,7 @@ use std::{
     borrow::{Borrow, BorrowMut},
     io,
     ops::{Deref, DerefMut},
+    path::PathBuf,
     process::{Child, Command},
 };
 
@@ -61,9 +62,12 @@ impl TransparentRunner {
         Self(platform::TransparentRunnerImpl::default())
     }
 
-    pub fn with_id(id: u32) -> Self {
+    pub fn with_args(id: u32, auth: String) -> Self {
         if cfg!(unix) {
-            Self(platform::TransparentRunnerImpl { id: Some(id) })
+            Self(platform::TransparentRunnerImpl {
+                id: Some(id),
+                auth: Some(auth),
+            })
         } else {
             todo!("not implemented for non unix")
         }

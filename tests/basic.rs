@@ -1,4 +1,8 @@
-use std::process::{Command, Stdio};
+use std::{
+    path::PathBuf,
+    process::{Command, Stdio},
+    str::FromStr,
+};
 
 use transparent::{CommandExt, TransparentRunner};
 
@@ -44,7 +48,10 @@ fn check_identical_output_specific_id() {
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
 
     let transparent_output = cmd
-        .spawn_transparent(&TransparentRunner::with_id(99))
+        .spawn_transparent(&TransparentRunner::with_args(
+            99,
+            "/tmp/123Xauth".to_owned(),
+        ))
         .unwrap()
         .wait_with_output()
         .unwrap();
